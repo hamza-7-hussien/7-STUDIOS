@@ -59,15 +59,16 @@ body {
 .big-heart.show { animation: heartPop 0.8s forwards; }
 @keyframes heartPop { 0% {opacity:0; transform: translate(-50%, -50%) scale(0.5);} 50% {opacity:1; transform: translate(-50%, -50%) scale(1.4);} 100% {opacity:0; transform: translate(-50%, -50%) scale(1);} }
 
-.actions { display: flex; gap: 40px; align-items: center; margin-top: 15px; padding: 10px 40px; background: rgba(255, 255, 255, 0.08); border-radius: 50px; border: 1px solid rgba(255,215,0,0.4); }
+.actions { display: flex; gap: 30px; align-items: center; margin-top: 15px; padding: 10px 30px; background: rgba(255, 255, 255, 0.08); border-radius: 50px; border: 1px solid rgba(255,215,0,0.4); }
 .actions i { font-size: 28px; cursor: pointer; color: white; }
 .fa-heart.liked { color: red !important; }
+.like-display { color: gold; font-weight: bold; font-size: 18px; margin-left: -20px; }
 .close-btn { position:absolute; top:20px; right:25px; font-size:45px; color: gold; cursor:pointer; z-index: 1600; }
 
 /* التعليقات */
 .comments-container { width: 100%; margin-top: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px; border: 1px solid rgba(255, 215, 0, 0.2); }
-.comments-list { height: 52px; overflow-y: scroll; margin-bottom: 10px; scrollbar-width: none; text-align: left; }
-.comment-item { font-size: 13px; color: #eee; padding: 4px 8px; border-bottom: 1px solid rgba(255, 215, 0, 0.1); height: 26px; display: flex; align-items: center; }
+.comments-list { height: 52px; overflow-y: auto; margin-bottom: 10px; scrollbar-width: none; text-align: left; }
+.comment-item { font-size: 13px; color: #eee; padding: 4px 8px; border-bottom: 1px solid rgba(255, 215, 0, 0.1); }
 .comment-input-area { display: flex; gap: 8px; }
 .comment-input-area input { flex: 1; background: #1a1a1a; border: 1px solid gold; border-radius: 20px; padding: 5px 15px; color: white; outline: none; }
 .comment-input-area button { background: gold; border: none; border-radius: 20px; padding: 5px 15px; cursor: pointer; font-weight: bold; color: black; }
@@ -116,6 +117,7 @@ body {
   </div>
   <div class="actions">
     <i class="fas fa-heart" id="likeBtn" onclick="toggleLike()"></i>
+    <span class="like-display" id="likeCountDisplay">0</span>
     <i class="fas fa-download" style="color:#00ff88;" onclick="downloadImage()"></i>
     <i class="fas fa-share-alt" onclick="shareImage()"></i>
   </div>
@@ -129,7 +131,26 @@ body {
   </div>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
 <script>
+// الكود بتاعك يا حمزة
+const firebaseConfig = {
+  apiKey: "AIzaSyA7AujCYTlmLyw9vaEEfWXxDqsd_LF_zWU",
+  authDomain: "studios-dffdd.firebaseapp.com",
+  databaseURL: "https://studios-dffdd-default-rtdb.firebaseio.com",
+  projectId: "studios-dffdd",
+  storageBucket: "studios-dffdd.firebasestorage.app",
+  messagingSenderId: "760995591996",
+  appId: "1:760995591996:web:889097b58f5ddf54465039",
+  measurementId: "G-6916EY514B"
+};
+
+// تشغيل Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 const translations = {
   en: { sectionTitle: "DESIGNS", contactTitle: "Contact Us", postBtn: "Post", placeholder: "Add a comment...", noComments: "No comments yet..." },
   ar: { sectionTitle: "التصاميم", contactTitle: "تواصل معنا", postBtn: "نشر", placeholder: "أضف تعليقاً...", noComments: "لا توجد تعليقات بعد..." },
@@ -148,7 +169,7 @@ function changeLang(lang, el) {
   
   document.querySelectorAll('.lang-flag').forEach(f => f.classList.remove('active'));
   el.classList.add('active');
-  renderComments();
+  renderComments(); 
 }
 
 const imagesLinks = [
@@ -162,7 +183,6 @@ const imagesLinks = [
   "https://i.postimg.cc/7LKjTxKP/pixel-20260319-060426-0000.png"
 ];
 
-let commentsData = imagesLinks.map(() => []);
 let currentIndex = 0;
 let likedStatus = new Array(imagesLinks.length).fill(false);
 let lastTapTime = 0;
@@ -185,6 +205,35 @@ function openImage(i) {
   document.getElementById("langSwitcher").style.pointerEvents = "none";
   document.getElementById("popup").style.display = "flex";
   setTimeout(() => document.getElementById("popup").style.opacity = "1", 10);
+  
+  // الاستماع للبيانات من Firebase عند فتح كل صورة
+  syncFirebaseData(i);
+}
+
+function syncFirebaseData(i) {
+  // مزامنة اللايكات
+  database.ref('likes/photo_' + i).on('value', (snapshot) => {
+      const count = snapshot.val() || 0;
+      document.getElementById("likeCountDisplay").textContent = count;
+  });
+
+  // مزامنة الكومنتات
+  database.ref('comments/photo_' + i).on('value', (snapshot) => {
+      const list = document.getElementById("commentsList");
+      list.innerHTML = "";
+      const data = snapshot.val();
+      if(data) {
+          Object.values(data).forEach(comment => {
+              const div = document.createElement("div");
+              div.className = "comment-item";
+              div.textContent = "• " + comment.text;
+              list.appendChild(div);
+          });
+      } else {
+          list.innerHTML = `<div style="font-size:12px; opacity:0.5; height:52px; display:flex; align-items:center; justify-content:center;">${translations[currentLang].noComments}</div>`;
+      }
+      list.scrollTop = list.scrollHeight;
+  });
 }
 
 function closeImage() {
@@ -192,33 +241,40 @@ function closeImage() {
   document.getElementById("langSwitcher").style.opacity = "1";
   document.getElementById("langSwitcher").style.pointerEvents = "auto";
   setTimeout(() => document.getElementById("popup").style.display = "none", 500);
+  // قفل الاستماع للبيانات لتوفير الموارد
+  database.ref('likes/photo_' + currentIndex).off();
+  database.ref('comments/photo_' + currentIndex).off();
 }
 
 function updatePopup() {
   document.getElementById("popup-img").src = imagesLinks[currentIndex];
   document.getElementById("likeBtn").className = likedStatus[currentIndex] ? "fas fa-heart liked" : "fas fa-heart";
-  renderComments();
 }
 
 function renderComments() {
-  const list = document.getElementById("commentsList");
-  list.innerHTML = commentsData[currentIndex].length === 0 ? `<div style="font-size:12px; opacity:0.5; height:52px; display:flex; align-items:center; justify-content:center;">${translations[currentLang].noComments}</div>` : "";
-  commentsData[currentIndex].forEach(c => {
-    const div = document.createElement("div");
-    div.className = "comment-item";
-    div.textContent = "• " + c;
-    list.appendChild(div);
-  });
-  list.scrollTop = list.scrollHeight;
+    // الكومنتات دلوقتى بتيجي من Firebase أوتوماتيك في syncFirebaseData
 }
 
 function addComment() {
   const input = document.getElementById("commentInput");
-  if(input.value.trim() !== "") { commentsData[currentIndex].push(input.value); input.value = ""; renderComments(); }
+  if(input.value.trim() !== "") {
+    database.ref('comments/photo_' + currentIndex).push({
+        text: input.value,
+        timestamp: Date.now()
+    });
+    input.value = "";
+  }
 }
 
 function toggleLike() {
+  const wasLiked = likedStatus[currentIndex];
   likedStatus[currentIndex] = !likedStatus[currentIndex];
+  
+  const increment = wasLiked ? -1 : 1;
+  database.ref('likes/photo_' + currentIndex).transaction((currentValue) => {
+      return (currentValue || 0) + increment;
+  });
+
   updatePopup();
   if (likedStatus[currentIndex]) showGoldHeart();
 }
@@ -239,8 +295,16 @@ const popupImg = document.getElementById("popup-img");
 popupImg.addEventListener("touchstart", e => touchStartX = e.touches[0].clientX);
 popupImg.addEventListener("touchend", e => {
   let touchEndX = e.changedTouches[0].clientX;
-  if (touchStartX - touchEndX > 50) { currentIndex = (currentIndex + 1) % imagesLinks.length; updatePopup(); }
-  if (touchEndX - touchStartX > 50) { currentIndex = (currentIndex - 1 + imagesLinks.length) % imagesLinks.length; updatePopup(); }
+  if (touchStartX - touchEndX > 50) { 
+      currentIndex = (currentIndex + 1) % imagesLinks.length; 
+      updatePopup(); 
+      syncFirebaseData(currentIndex);
+  }
+  if (touchEndX - touchStartX > 50) { 
+      currentIndex = (currentIndex - 1 + imagesLinks.length) % imagesLinks.length; 
+      updatePopup(); 
+      syncFirebaseData(currentIndex);
+  }
 });
 
 function downloadImage() { const a = document.createElement('a'); a.href = imagesLinks[currentIndex]; a.download = '7_STUDIOS.png'; a.click(); }
