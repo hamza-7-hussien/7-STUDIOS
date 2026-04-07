@@ -185,7 +185,7 @@ window.onload = () => {
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
         document.getElementById('login-overlay').style.display = 'none';
-        trackPresence(); // تفعيل الـ Online فوراً لو مسجل قبل كدة
+        trackPresence(); 
     }
 };
 
@@ -198,7 +198,7 @@ function enterSite() {
   currentUser = { displayName: name };
   localStorage.setItem('7studios_user', JSON.stringify(currentUser));
   document.getElementById('login-overlay').style.display = 'none';
-  trackPresence(); // تفعيل الـ Online فور الضغط على الزر
+  trackPresence(); 
 }
 
 function trackPresence() {
@@ -206,28 +206,27 @@ function trackPresence() {
   const onlineRef = database.ref('online_users');
   const myRef = onlineRef.push();
   
-  // يمسحه لما يقفل الصفحة
   myRef.onDisconnect().remove();
   myRef.set({ name: currentUser.displayName, time: Date.now() });
 
+  // مراقبة حية للتغييرات من 1 لـ 20 + الحقيقيين
   onlineRef.on('value', s => {
     const now = new Date();
     const min = now.getMinutes();
-    const hrs = now.getHours();
     
-    // رقم أساسي واقعي يتغير كل دقيقة
-    let dynamicBase = 115 + (min % 20) + (hrs % 8); 
+    // رقم وهمي يتأرجح بين 1 و 20 بناءً على الدقيقة الحالية
+    let fakeBase = (min % 20) + 1; 
     
-    // المجموع = الرقم الوهمي + عدد المتصلين الحقيقيين (منهم أنت)
+    // المجموع = الرقم الوهمي المتغير + الحقيقيين
     const realUsersCount = s.numChildren() || 0;
-    document.getElementById('online-count').textContent = dynamicBase + realUsersCount;
+    document.getElementById('online-count').textContent = fakeBase + realUsersCount;
   });
 }
 
 const translations = {
   en: { sectionTitle: "DESIGNS", contactTitle: "Contact Us", postBtn: "Post", placeholder: "Add a comment...", noComments: "No comments yet..." },
   ar: { sectionTitle: "التصاميم", contactTitle: "تواصل معنا", postBtn: "نشر", placeholder: "أضف تعليقاً...", noComments: "لا توجد تعليقات بعد..." },
-  es: { sectionTitle: "DISEÑOS", contactTitle: "Contáctenos", postBtn: "Publicar", placeholder: "Añadir un comentario...", noComments: "Sin comentarios aún..." }
+  es: { sectionTitle: "DISEÑOS", contactTitle: "Contáctenos", postBtn: "Publicار", placeholder: "Añadir un comentario...", noComments: "Sin comentarios aún..." }
 };
 
 function changeLang(lang, el) {
@@ -270,6 +269,10 @@ function openImage(i) {
   updatePopup();
   document.getElementById("langSwitcher").style.display = "none"; 
   document.getElementById("popup").style.display = "flex";
+  
+  // منع الـ Swipe up/down عند فتح الصورة
+  document.body.style.overflow = "hidden";
+
   setTimeout(() => document.getElementById("popup").style.opacity = "1", 10);
   syncFirebaseData(i);
 }
@@ -297,6 +300,10 @@ function syncFirebaseData(i) {
 function closeImage() {
   document.getElementById("popup").style.opacity = "0";
   document.getElementById("langSwitcher").style.display = "flex";
+  
+  // إعادة تفعيل الـ Swipe بعد غلق الصورة
+  document.body.style.overflow = "auto";
+
   setTimeout(() => document.getElementById("popup").style.display = "none", 500);
 }
 
