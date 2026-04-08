@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>7 STUDIOS | High-End Portfolio</title>
 
 <link rel="manifest" href="manifest.json">
@@ -15,74 +15,107 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 <style>
-* { box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+* { box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
 body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: white; text-align: center; overflow-x: hidden; }
 #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
-.online-counter { 
-  position: absolute; top: 15px; left: 15px; 
-  background: rgba(255, 215, 0, 0.15); border: 1px solid gold; 
-  padding: 5px 15px; border-radius: 20px; color: gold; 
-  font-weight: bold; font-size: 14px; backdrop-filter: blur(10px); z-index: 2000; 
-}
-
-#login-overlay {
+#splash-screen {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center;
+  background: #000; display: flex; justify-content: center; align-items: center;
+  z-index: 10000; transition: opacity 0.8s ease, visibility 0.8s;
 }
-.login-card {
-  background: rgba(15, 15, 15, 0.95); padding: 40px; border-radius: 25px;
-  border: 1px solid gold; text-align: center; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-  width: 90%; max-width: 400px;
+.splash-content { width: 90%; max-width: 600px; text-align: center; }
+.splash-content svg { font-weight: 700; text-transform: uppercase; width: 100%; }
+.text-copy {
+  fill: none; stroke: white; stroke-dasharray: 6% 29%; stroke-width: 2px;
+  stroke-dashoffset: 0%; animation: stroke-offset 5.5s infinite linear;
 }
-.name-input {
-  width: 100%; padding: 12px 20px; border-radius: 30px; border: 1px solid gold;
-  background: #1a1a1a; color: white; margin-top: 20px; outline: none; text-align: center;
-  font-family: 'Cairo', sans-serif; user-select: auto;
+.text-copy:nth-child(1) { stroke: gold; animation-delay: -1s; }
+.text-copy:nth-child(2) { stroke: #fff; animation-delay: -2s; }
+.text-copy:nth-child(3) { stroke: gold; animation-delay: -3s; }
+.text-copy:nth-child(4) { stroke: #fff; animation-delay: -4s; }
+.text-copy:nth-child(5) { stroke: gold; animation-delay: -5s; }
+@keyframes stroke-offset { 100% { stroke-dashoffset: -35%; } }
+.loader-line {
+  width: 0; height: 2px; background: gold; margin-top: 20px;
+  box-shadow: 0 0 10px gold; animation: loadProgress 2.5s forwards ease-in-out;
 }
-.entry-btn {
-  background: gold; color: #000; padding: 12px 30px; border-radius: 30px;
-  border: none; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%;
+@keyframes loadProgress { to { width: 100%; } }
+.splash-hidden { opacity: 0; visibility: hidden; }
+
+#name-overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%; 
+  background: rgba(0,0,0,0.95); z-index: 9999; 
+  display: none; justify-content: center; align-items: center; flex-direction: column;
+  backdrop-filter: blur(15px);
+}
+.name-box {
+  background: #111; padding: 30px; border-radius: 20px; border: 2px solid gold;
+  width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 20px gold;
+}
+.name-box input {
+  width: 100%; padding: 12px; margin: 20px 0; border-radius: 10px; border: 1px solid gold;
+  background: #000; color: white; text-align: center; font-size: 16px; outline: none; user-select: auto;
+}
+.name-box button {
+  background: gold; color: black; border: none; padding: 10px 30px; 
+  border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px;
 }
 
-.lang-switcher {
-  position: absolute; top: 15px; right: 15px; z-index: 2000;
-  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 215, 0, 0.3);
-  padding: 8px 15px; border-radius: 30px; backdrop-filter: blur(10px); display: flex; gap: 15px; align-items: center;
+.online-counter { 
+  position: absolute; top: 15px; left: 10px; 
+  background: rgba(255, 215, 0, 0.15); border: 1px solid gold; 
+  padding: 5px 10px; border-radius: 20px; color: gold; 
+  font-weight: bold; font-size: 12px; backdrop-filter: blur(10px); z-index: 2000;
+  display: flex; align-items: center; gap: 5px;
 }
-.lang-flag { width: 28px; height: 28px; cursor: pointer; border-radius: 50%; transition: 0.3s; }
+.lang-area-wrapper { position: absolute; top: 15px; right: 10px; z-index: 2000; display: flex; align-items: center; gap: 5px; }
+.lang-switcher {
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 215, 0, 0.3);
+  padding: 5px 8px; border-radius: 30px; backdrop-filter: blur(10px); 
+  display: flex; gap: 10px; align-items: center; width: 140px; overflow-x: auto; scrollbar-width: none;
+}
+.lang-flag { width: 24px; height: 24px; cursor: pointer; border-radius: 50%; transition: 0.3s; flex-shrink: 0; border: 2px solid transparent; }
 .lang-flag.active { border-color: gold; box-shadow: 0 0 8px gold; }
 
 .header {
-  padding: 50px 20px 30px; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px);
-  border-bottom: 2px solid rgba(255, 215, 0, 0.3); display: flex; justify-content: center; align-items: center; gap: 20px;
+  padding: 60px 20px 30px; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3); display: flex; justify-content: center; align-items: center; gap: 15px;
 }
-.logo-img { width: 100px; height: 100px; border: 4px solid #FFD700; border-radius: 15px; background-color: #000; padding: 10px; }
-.logo-text { font-size: 38px; font-weight: 700; color: gold; text-shadow: 0 0 15px rgba(255, 215, 0, 0.7); }
+.logo-img { width: 80px; height: 80px; border: 3px solid #FFD700; border-radius: 12px; background-color: #000; padding: 5px; }
+.logo-text { font-size: 30px; font-weight: 700; color: gold; text-shadow: 0 0 15px rgba(255, 215, 0, 0.7); }
 
-.images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 700px; margin: auto; padding: 30px 20px 50px 20px; }
-.images img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 18px; cursor: pointer; border: 2px solid rgba(255, 215, 0, 0.3); }
+.images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 700px; margin: auto; padding: 20px 15px 50px 15px; }
+.img-container { position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 15px; overflow: hidden; border: 1px solid rgba(255, 215, 0, 0.3); }
+.img-container img { width: 100%; height: 100%; object-fit: cover; }
+.protection-layer { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 5; background: transparent; cursor: pointer; }
 
 .popup {
   display: none; position: fixed; top:0; left:0; width:100%; height:100%;
   background: rgba(0,0,0,0.97); backdrop-filter: blur(25px);
-  justify-content:center; align-items:center; flex-direction: column; z-index:1500; opacity: 0; transition: opacity 0.5s;
+  justify-content:center; align-items:center; flex-direction: column; z-index:2500; opacity: 0; transition: opacity 0.5s;
 }
 .img-area { position:relative; width: 90%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
-.popup img { width: 100%; border-radius: 20px; border: 3px solid gold; pointer-events: none; }
-#swipe-protection { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+.popup img { width: 100%; border-radius: 20px; border: 3px solid gold; }
 
-.big-heart { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 100px; color: gold; opacity: 0; z-index: 11; pointer-events: none; }
+#swipe-protection { 
+    position: absolute; 
+    top: 0; left: 0; width: 100%; height: 100%; 
+    z-index: 100; cursor: grab; background: transparent;
+    touch-action: none; 
+}
+
+.big-heart { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 100px; color: gold; opacity: 0; z-index: 110; pointer-events: none; }
 .big-heart.show { animation: heartPop 0.8s forwards; }
 @keyframes heartPop { 0% {opacity:0; transform: translate(-50%, -50%) scale(0.5);} 50% {opacity:1; transform: translate(-50%, -50%) scale(1.4);} 100% {opacity:0; transform: translate(-50%, -50%) scale(1);} }
 
-.actions { display: flex; gap: 30px; align-items: center; margin-top: 15px; padding: 10px 30px; background: rgba(255, 255, 255, 0.08); border-radius: 50px; border: 1px solid rgba(255,215,0,0.4); z-index: 20; }
+.actions { display: flex; gap: 30px; align-items: center; margin-top: 15px; padding: 10px 30px; background: rgba(255, 255, 255, 0.08); border-radius: 50px; border: 1px solid rgba(255,215,0,0.4); z-index: 120; }
 .actions i { font-size: 28px; cursor: pointer; color: white; }
 .fa-heart.liked { color: red !important; }
 .like-display { color: gold; font-weight: bold; font-size: 18px; margin-left: -20px; }
 .close-btn { position:absolute; top:20px; right:25px; font-size:45px; color: gold; cursor:pointer; z-index: 1600; }
 
-.comments-container { width: 100%; margin-top: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px; border: 1px solid rgba(255, 215, 0, 0.2); z-index: 20; }
+.comments-container { width: 100%; margin-top: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px; border: 1px solid rgba(255, 215, 0, 0.2); z-index: 110; }
 .comments-list { height: 52px; overflow-y: auto; margin-bottom: 10px; text-align: left; }
 .comment-item { font-size: 13px; color: #eee; padding: 4px 8px; border-bottom: 1px solid rgba(255, 215, 0, 0.1); }
 .comment-user-name { color: gold; font-weight: bold; margin-right: 5px; }
@@ -91,30 +124,47 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
 .comment-input-area input { flex: 1; background: #1a1a1a; border: 1px solid gold; border-radius: 20px; padding: 5px 15px; color: white; outline: none; user-select: auto; }
 .comment-input-area button { background: gold; border: none; border-radius: 20px; padding: 5px 15px; cursor: pointer; font-weight: bold; color: black; }
 
-.contact { margin-top:80px; padding:80px 20px; background: linear-gradient(to top, #000, #0a0a0a); border-top: 2px solid rgba(255, 215, 0, 0.2); }
-.social-btn { text-decoration: none; padding: 18px 40px; border-radius: 50px; font-weight: 700; display: flex; align-items: center; gap: 12px; border: 1px solid gold; font-size: 18px; }
-.insta-btn { color: #E1306C; border-color: #E1306C; }
-.wa-btn { color: #25D366; border-color: #25D366; }
+.contact { margin-top:50px; padding:60px 20px; background: linear-gradient(to top, #000, #0a0a0a); border-top: 2px solid rgba(255, 215, 0, 0.2); }
+.social-btn { text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 700; display: flex; align-items: center; gap: 10px; border: 1px solid gold; font-size: 16px; }
 </style>
 </head>
 <body oncontextmenu="return false;">
 
-<div class="online-counter"><i class="fas fa-users"></i> <span id="online-count">---</span> Online</div>
-
-<div id="login-overlay">
-  <div class="login-card animate__animated animate__zoomIn">
-    <img src="https://i.postimg.cc/MTs324rX/IMG-20260317-190541.png" style="width: 80px; border: 2px solid gold; border-radius: 12px; margin-bottom: 10px;">
-    <h2 style="color: gold;">7 STUDIOS</h2>
-    <p style="color: #ccc; font-size: 14px;">Please enter your first and last name</p>
-    <input type="text" id="user-full-name" class="name-input" placeholder="Name here...">
-    <button class="entry-btn" onclick="enterSite()">Enter</button>
+<div id="splash-screen">
+  <div class="splash-content">
+    <svg viewBox="0 0 500 150">
+      <symbol id="line-text">
+        <text x="50%" y="50%" dy=".35em" text-anchor="middle" font-size="60">7 STUDIOS</text>
+      </symbol>
+      <use xlink:href="#line-text" class="text-copy"></use>
+      <use xlink:href="#line-text" class="text-copy"></use>
+      <use xlink:href="#line-text" class="text-copy"></use>
+    </svg>
+    <div class="loader-line"></div>
   </div>
 </div>
 
-<div class="lang-switcher" id="langSwitcher">
-  <img src="https://flagcdn.com/w80/us.png" class="lang-flag active" id="flag-en" onclick="changeLang('en', this)">
-  <img src="https://flagcdn.com/w80/es.png" class="lang-flag" onclick="changeLang('es', this)">
-  <img src="https://flagcdn.com/w80/eg.png" class="lang-flag" onclick="changeLang('ar', this)">
+<div id="name-overlay">
+  <div class="name-box">
+    <h2 id="name-title" style="color: gold;">Welcome to 7 STUDIOS</h2>
+    <p id="name-subtitle" style="font-size: 12px; margin-top: 5px;">Please enter your full name</p>
+    <input type="text" id="user-full-name" placeholder="First & Last Name">
+    <button onclick="saveName()" id="name-btn">Enter</button>
+  </div>
+</div>
+
+<div class="online-counter" id="online-box">
+    <i class="fas fa-users"></i> <span id="online-count">..</span> <span id="online-label">Online</span>
+</div>
+
+<div class="lang-area-wrapper" id="langWrapper">
+  <div class="lang-switcher" id="langSwitcher">
+    <img src="https://flagcdn.com/w80/us.png" class="lang-flag active" onclick="changeLang('en', this)">
+    <img src="https://flagcdn.com/w80/eg.png" class="lang-flag" onclick="changeLang('ar', this)">
+    <img src="https://flagcdn.com/w80/it.png" class="lang-flag" onclick="changeLang('it', this)">
+    <img src="https://flagcdn.com/w80/de.png" class="lang-flag" onclick="changeLang('de', this)">
+    <img src="https://flagcdn.com/w80/cn.png" class="lang-flag" onclick="changeLang('cn', this)">
+  </div>
 </div>
 
 <canvas id="bg-canvas"></canvas>
@@ -125,7 +175,7 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
 </header>
 
 <section>
-  <h2 id="section-title" style="color: gold; font-size: 32px; margin-top: 50px; letter-spacing: 3px;">DESIGNS</h2>
+  <h2 id="section-title" style="color: gold; font-size: 28px; margin-top: 40px;">DESIGNS</h2>
   <div class="images" id="gallery"></div>
 </section>
 
@@ -138,7 +188,7 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
     <div class="comments-container">
       <div class="comments-list" id="commentsList"></div>
       <div class="comment-input-area">
-        <input type="text" id="commentInput" placeholder="Add a comment...">
+        <input type="text" id="commentInput">
         <button id="post-btn" onclick="addComment()">Post</button>
       </div>
     </div>
@@ -146,16 +196,14 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
   <div class="actions">
     <i class="fas fa-heart" id="likeBtn" onclick="toggleLike()"></i>
     <span class="like-display" id="likeCountDisplay">0</span>
-    <i class="fas fa-download" style="color:#00ff88;" onclick="downloadImage()"></i>
-    <i class="fas fa-share-alt" onclick="shareImage()"></i>
   </div>
 </div>
 
 <footer class="contact">
-  <h2 id="contact-title" style="color: gold; font-size: 32px; margin-bottom: 35px;">Contact Us</h2>
-  <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
-    <a href="https://instagram.com/im_7amza_7" target="_blank" class="social-btn insta-btn"><i class="fab fa-instagram"></i> Instagram</a>
-    <a href="https://wa.me/201221109955" target="_blank" class="social-btn wa-btn"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+  <h2 id="contact-title" style="color: gold; font-size: 28px; margin-bottom: 25px;">Contact Us</h2>
+  <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+    <a href="https://instagram.com/im_7amza_7" id="ig-link" target="_blank" class="social-btn" style="color:#E1306C; border:1px solid #E1306C; padding:10px 20px; border-radius:20px; text-decoration:none;"><i class="fab fa-instagram"></i> Instagram</a>
+    <a href="https://wa.me/201221109955" id="wa-link" target="_blank" class="social-btn" style="color:#25D366; border:1px solid #25D366; padding:10px 20px; border-radius:20px; text-decoration:none;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
   </div>
 </footer>
 
@@ -165,79 +213,66 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyA7AujCYTlmLyw9vaEEfWXxDqsd_LF_zWU",
-  authDomain: "studios-dffdd.firebaseapp.com",
   databaseURL: "https://studios-dffdd-default-rtdb.firebaseio.com",
   projectId: "studios-dffdd",
-  storageBucket: "studios-dffdd.firebasestorage.app",
-  messagingSenderId: "760995591996",
-  appId: "1:760995591996:web:889097b58f5ddf54465039"
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-let currentUser = null;
-let currentLang = 'en';
+let currentUser = { displayName: localStorage.getItem('7studios_user_name') || "" };
+let currentIndex = 0;
+let startX = 0;
+let isDragging = false;
+let likedStatus = JSON.parse(localStorage.getItem('7studios_likes')) || {};
 
-// الكود يبدأ من هنا
-window.onload = () => {
-    changeLang('en', document.getElementById('flag-en'));
-    const savedUser = localStorage.getItem('7studios_user');
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        document.getElementById('login-overlay').style.display = 'none';
-        trackPresence(); 
-    }
-};
-
-function enterSite() {
-  const name = document.getElementById('user-full-name').value.trim();
-  if (name.split(' ').filter(w => w !== '').length < 2) {
-    alert("Please enter at least your first and last name.");
-    return;
-  }
-  currentUser = { displayName: name };
-  localStorage.setItem('7studios_user', JSON.stringify(currentUser));
-  document.getElementById('login-overlay').style.display = 'none';
-  trackPresence(); 
-}
-
-function trackPresence() {
-  if (!currentUser) return;
-  const onlineRef = database.ref('online_users');
-  const myRef = onlineRef.push();
-  
-  myRef.onDisconnect().remove();
-  myRef.set({ name: currentUser.displayName, time: Date.now() });
-
-  // مراقبة حية للتغييرات من 1 لـ 20 + الحقيقيين
-  onlineRef.on('value', s => {
-    const now = new Date();
-    const min = now.getMinutes();
-    
-    // رقم وهمي يتأرجح بين 1 و 20 بناءً على الدقيقة الحالية
-    let fakeBase = (min % 20) + 1; 
-    
-    // المجموع = الرقم الوهمي المتغير + الحقيقيين
-    const realUsersCount = s.numChildren() || 0;
-    document.getElementById('online-count').textContent = fakeBase + realUsersCount;
-  });
-}
-
+// ترقية قسم الترجمة ليشمل كلمة Online والروابط
 const translations = {
-  en: { sectionTitle: "DESIGNS", contactTitle: "Contact Us", postBtn: "Post", placeholder: "Add a comment...", noComments: "No comments yet..." },
-  ar: { sectionTitle: "التصاميم", contactTitle: "تواصل معنا", postBtn: "نشر", placeholder: "أضف تعليقاً...", noComments: "لا توجد تعليقات بعد..." },
-  es: { sectionTitle: "DISEÑOS", contactTitle: "Contáctenos", postBtn: "Publicار", placeholder: "Añadir un comentario...", noComments: "Sin comentarios aún..." }
+  en: { section: "DESIGNS", contact: "Contact Us", online: "Online", post: "Post", nTitle: "Welcome", nSub: "Enter full name", nBtn: "Enter", nPlace: "First & Last Name", cPlace: "Add comment...", ig: "Instagram", wa: "WhatsApp" },
+  ar: { section: "التصاميم", contact: "تواصل معنا", online: "متصل", post: "نشر", nTitle: "مرحباً بك", nSub: "ادخل اسمك الثنائي", nBtn: "دخول", nPlace: "الاسم الأول والأخير", cPlace: "أضف تعليقاً...", ig: "انستجرام", wa: "واتساب" },
+  it: { section: "DISEGNI", contact: "Contattaci", online: "In linea", post: "Invia", nTitle: "Benvenuto", nSub: "Inserisci il nome", nBtn: "Entra", nPlace: "Nome e Cognome", cPlace: "Aggiungi commento...", ig: "Instagram", wa: "WhatsApp" },
+  de: { section: "DESIGNS", contact: "Kontakt", online: "Online", post: "Post", nTitle: "Willkommen", nSub: "Vollständiger Name", nBtn: "Start", nPlace: "Vor- & Nachname", cPlace: "Kommentar...", ig: "Instagram", wa: "WhatsApp" },
+  cn: { section: "设计", contact: "联系我们", online: "在线", post: "发布", nTitle: "欢迎", nSub: "输入全名", nBtn: "进入", nPlace: "姓和名", cPlace: "添加评论...", ig: "Instagram", wa: "微信/WhatsApp" }
 };
 
-function changeLang(lang, el) {
-  currentLang = lang;
-  document.getElementById('commentsList').style.textAlign = (lang === 'ar') ? 'right' : 'left';
-  document.getElementById('section-title').textContent = translations[lang].sectionTitle;
-  document.getElementById('contact-title').textContent = translations[lang].contactTitle;
-  document.getElementById('post-btn').textContent = translations[lang].postBtn;
-  document.getElementById('commentInput').placeholder = translations[lang].placeholder;
-  document.querySelectorAll('.lang-flag').forEach(f => f.classList.remove('active'));
-  if(el) el.classList.add('active');
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('splash-screen').classList.add('splash-hidden');
+        if (!currentUser.displayName) document.getElementById('name-overlay').style.display = 'flex';
+        else trackPresence();
+    }, 3000);
+    renderGallery();
+    changeLang('en'); // اللغة الافتراضية
+});
+
+function changeLang(l, el) {
+    const t = translations[l];
+    document.getElementById('section-title').textContent = t.section;
+    document.getElementById('contact-title').textContent = t.contact;
+    document.getElementById('online-label').textContent = t.online; // ترجمة كلمة Online
+    document.getElementById('post-btn').textContent = t.post;
+    document.getElementById('name-title').textContent = t.nTitle;
+    document.getElementById('name-subtitle').textContent = t.nSub;
+    document.getElementById('name-btn').textContent = t.nBtn;
+    document.getElementById('user-full-name').placeholder = t.nPlace;
+    document.getElementById('commentInput').placeholder = t.cPlace;
+    
+    // ترجمة أزرار التواصل
+    document.getElementById('ig-link').innerHTML = `<i class="fab fa-instagram"></i> ${t.ig}`;
+    document.getElementById('wa-link').innerHTML = `<i class="fab fa-whatsapp"></i> ${t.wa}`;
+
+    if(el) {
+        document.querySelectorAll('.lang-flag').forEach(f => f.classList.remove('active'));
+        el.classList.add('active');
+    }
+}
+
+function saveName() {
+    const nameInput = document.getElementById('user-full-name').value.trim();
+    if (nameInput.split(" ").length < 2) return alert("Please enter your full name.");
+    localStorage.setItem('7studios_user_name', nameInput);
+    currentUser.displayName = nameInput;
+    document.getElementById('name-overlay').style.display = 'none';
+    trackPresence();
 }
 
 const imagesLinks = [
@@ -251,117 +286,115 @@ const imagesLinks = [
   "https://i.postimg.cc/7LKjTxKP/pixel-20260319-060426-0000.png"
 ];
 
-let currentIndex = 0;
-let lastTapTime = 0;
-let touchStartX = 0;
-let likedStatus = JSON.parse(localStorage.getItem('7studios_likes')) || new Array(8).fill(false);
-
-const gallery = document.getElementById('gallery');
-imagesLinks.forEach((src, index) => {
-  const img = document.createElement('img');
-  img.src = src;
-  img.onclick = () => openImage(index);
-  gallery.appendChild(img);
-});
+function renderGallery() {
+    const gallery = document.getElementById('gallery');
+    imagesLinks.forEach((src, i) => {
+        gallery.innerHTML += `<div class="img-container"><img src="${src}"><div class="protection-layer" onclick="openImage(${i})"></div></div>`;
+    });
+}
 
 function openImage(i) {
-  currentIndex = i;
-  updatePopup();
-  document.getElementById("langSwitcher").style.display = "none"; 
-  document.getElementById("popup").style.display = "flex";
-  
-  // منع الـ Swipe up/down عند فتح الصورة
-  document.body.style.overflow = "hidden";
-
-  setTimeout(() => document.getElementById("popup").style.opacity = "1", 10);
-  syncFirebaseData(i);
-}
-
-function syncFirebaseData(i) {
-  database.ref('likes/photo_' + i).on('value', (s) => document.getElementById("likeCountDisplay").textContent = s.val() || 0);
-  database.ref('comments/photo_' + i).on('value', (snapshot) => {
-      const list = document.getElementById("commentsList");
-      list.innerHTML = "";
-      const data = snapshot.val();
-      if(data) {
-          Object.values(data).forEach(comment => {
-              const div = document.createElement("div");
-              div.className = "comment-item";
-              div.innerHTML = `<span class="comment-user-name">${comment.user}:</span> ${comment.text}`;
-              list.appendChild(div);
-          });
-      } else {
-          list.innerHTML = `<div style="font-size:12px; opacity:0.5; height:52px; display:flex; align-items:center; justify-content:center;">${translations[currentLang].noComments}</div>`;
-      }
-      list.scrollTop = list.scrollHeight;
-  });
-}
-
-function closeImage() {
-  document.getElementById("popup").style.opacity = "0";
-  document.getElementById("langSwitcher").style.display = "flex";
-  
-  // إعادة تفعيل الـ Swipe بعد غلق الصورة
-  document.body.style.overflow = "auto";
-
-  setTimeout(() => document.getElementById("popup").style.display = "none", 500);
-}
-
-function addComment() {
-  const input = document.getElementById("commentInput");
-  if(input.value.trim() !== "" && currentUser) {
-    database.ref('comments/photo_' + currentIndex).push({ user: currentUser.displayName, text: input.value });
-    input.value = "";
-  }
-}
-
-function toggleLike() {
-  if (!currentUser) return;
-  const wasLiked = likedStatus[currentIndex];
-  likedStatus[currentIndex] = !likedStatus[currentIndex];
-  localStorage.setItem('7studios_likes', JSON.stringify(likedStatus));
-  database.ref('likes/photo_' + currentIndex).transaction(v => (v || 0) + (wasLiked ? -1 : 1));
-  database.ref('whoLiked/photo_' + currentIndex).push(currentUser.displayName);
-  updatePopup();
-  if (likedStatus[currentIndex]) {
-    const heart = document.getElementById("bigHeart");
-    heart.classList.add("show");
-    setTimeout(() => heart.classList.remove("show"), 800);
-  }
+    currentIndex = i;
+    document.getElementById('popup').style.display = 'flex';
+    document.body.style.overflow = "hidden";
+    setTimeout(() => document.getElementById('popup').style.opacity = "1", 10);
+    updatePopup();
+    syncFirebase(i);
 }
 
 function updatePopup() {
-  document.getElementById("popup-img").src = imagesLinks[currentIndex];
-  document.getElementById("likeBtn").className = likedStatus[currentIndex] ? "fas fa-heart liked" : "fas fa-heart";
+    document.getElementById('popup-img').src = imagesLinks[currentIndex];
+    document.getElementById('likeBtn').className = likedStatus[currentIndex] ? "fas fa-heart liked" : "fas fa-heart";
 }
 
-const swipeArea = document.getElementById("swipe-protection");
-swipeArea.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; });
-swipeArea.addEventListener("touchend", (e) => {
-  let touchEndX = e.changedTouches[0].clientX;
-  if (touchStartX - touchEndX > 50) { currentIndex = (currentIndex + 1) % imagesLinks.length; updatePopup(); syncFirebaseData(currentIndex); } 
-  else if (touchEndX - touchStartX > 50) { currentIndex = (currentIndex - 1 + imagesLinks.length) % imagesLinks.length; updatePopup(); syncFirebaseData(currentIndex); }
-});
-swipeArea.addEventListener("click", (e) => {
-  const currentTime = new Date().getTime();
-  if (currentTime - lastTapTime < 300) { toggleLike(); }
-  lastTapTime = currentTime;
+function closeImage() {
+    document.getElementById('popup').style.opacity = "0";
+    document.body.style.overflow = "auto";
+    setTimeout(() => document.getElementById('popup').style.display = "none", 500);
+}
+
+function syncFirebase(i) {
+    database.ref('likes/photo_' + i).on('value', s => document.getElementById('likeCountDisplay').textContent = s.val() || 0);
+    database.ref('comments/photo_' + i).on('value', s => {
+        const list = document.getElementById('commentsList');
+        list.innerHTML = "";
+        if(s.val()) Object.values(s.val()).forEach(c => list.innerHTML += `<div class="comment-item"><span class="comment-user-name">${c.user}:</span> ${c.text}</div>`);
+    });
+}
+
+function toggleLike() {
+    const wasLiked = likedStatus[currentIndex];
+    database.ref('likes/photo_' + currentIndex).transaction(v => (v || 0) + (wasLiked ? -1 : 1));
+    likedStatus[currentIndex] = !wasLiked;
+    localStorage.setItem('7studios_likes', JSON.stringify(likedStatus));
+    updatePopup();
+    if (!wasLiked) {
+        const heart = document.getElementById('bigHeart');
+        heart.classList.add('show');
+        setTimeout(() => heart.classList.remove('show'), 800);
+    }
+}
+
+function addComment() {
+    const input = document.getElementById('commentInput');
+    if(input.value.trim()) {
+        database.ref('comments/photo_' + currentIndex).push({ user: currentUser.displayName, text: input.value });
+        input.value = "";
+    }
+}
+
+const swipeArea = document.getElementById('swipe-protection');
+function next() { currentIndex = (currentIndex + 1) % imagesLinks.length; updatePopup(); syncFirebase(currentIndex); }
+function prev() { currentIndex = (currentIndex - 1 + imagesLinks.length) % imagesLinks.length; updatePopup(); syncFirebase(currentIndex); }
+
+swipeArea.addEventListener('touchstart', e => { 
+    startX = e.touches[0].clientX; 
+    isDragging = true; 
+}, {passive:true});
+
+swipeArea.addEventListener('touchend', e => {
+    if(!isDragging) return;
+    let endX = e.changedTouches[0].clientX;
+    let diff = startX - endX;
+    if(Math.abs(diff) > 50) {
+        diff > 0 ? next() : prev();
+    }
+    isDragging = false;
+}, {passive:true});
+
+swipeArea.addEventListener('mousedown', e => { 
+    startX = e.clientX; 
+    isDragging = true; 
 });
 
-function downloadImage() { const a = document.createElement('a'); a.href = imagesLinks[currentIndex]; a.download = '7_STUDIOS.png'; a.click(); }
-function shareImage() { if (navigator.share) navigator.share({ url: imagesLinks[currentIndex] }); }
+swipeArea.addEventListener('mouseup', e => {
+    if(!isDragging) return;
+    let endX = e.clientX;
+    let diff = startX - endX;
+    if(Math.abs(diff) > 50) {
+        diff > 0 ? next() : prev();
+    }
+    isDragging = false;
+});
+
+function trackPresence() {
+    const ref = database.ref('online_users').push();
+    ref.onDisconnect().remove();
+    ref.set({ name: currentUser.displayName });
+    database.ref('online_users').on('value', s => document.getElementById('online-count').textContent = s.numChildren() + 7);
+}
 
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 let stars = [];
-for(let i=0; i<80; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2, v: Math.random()*0.4});
-function drawStars() {
-  ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "rgba(255,215,0,0.3)";
-  stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, 7); ctx.fill(); s.y -= s.v; if(s.y < 0) s.y = canvas.height; });
-  requestAnimationFrame(drawStars);
+for(let i=0; i<80; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2});
+function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "rgba(255,215,0,0.3)";
+    stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, 7); ctx.fill(); s.y -= 0.3; if(s.y<0) s.y=canvas.height; });
+    requestAnimationFrame(draw);
 }
-drawStars();
+draw();
 </script>
 </body>
 </html>
