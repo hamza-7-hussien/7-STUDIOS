@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+،<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -298,6 +298,8 @@ function renderGallery() {
     });
 }
 
+let lastTap = 0;
+
 function openImage(i) {
     currentIndex = i;
     document.getElementById('popup').style.display = 'flex';
@@ -305,7 +307,28 @@ function openImage(i) {
     setTimeout(() => document.getElementById('popup').style.opacity = "1", 10);
     updatePopup();
     syncFirebase(i);
+
+    // تفعيل الـ Double Tap على حماية السوايب والصورة
+    const swipeArea = document.getElementById('swipe-protection');
+    swipeArea.onclick = function(e) {
+        let currentTime = new Date().getTime();
+        let tapLength = currentTime - lastTap;
+        if (tapLength < 300 && tapLength > 0) {
+            // تنفيذ اللايك عند اللمس المزدوج
+            if (!likedStatus[currentIndex]) {
+                toggleLike();
+            } else {
+                // إظهار القلب الكبير فقط لو عامل لايك قبل كده
+                const heart = document.getElementById('bigHeart');
+                heart.classList.add('show');
+                setTimeout(() => heart.classList.remove('show'), 800);
+            }
+            e.preventDefault();
+        }
+        lastTap = currentTime;
+    };
 }
+  
 
 function updatePopup() {
     document.getElementById('popup-img').src = imagesLinks[currentIndex];
