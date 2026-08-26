@@ -268,7 +268,7 @@ header {
 .big-heart.show { animation: heartPop 0.8s forwards; }
 @keyframes heartPop { 0% {opacity:0; transform: translate(-50%, -50%) scale(0.5);} 50% {opacity:1; transform: translate(-50%, -50%) scale(1.4);} 100% {opacity:0; transform: translate(-50%, -50%) scale(1);} }
 
-.actions { display: flex; gap: 12px; align-items: center; margin-top: 15px; padding: 10px 25px; background: rgba(255, 255, 255, 0.08); border-radius: 50px; border: 1px solid rgba(255,215,0,0.4); z-index: 120; }
+.actions { display: flex; gap: 10px; align-items: center; margin-top: 15px; padding: 10px 25px; background: rgba(255, 255, 255, 0.08); border-radius: 50px; border: 1px solid rgba(255,215,0,0.4); z-index: 120; }
 .actions i { font-size: 26px; cursor: pointer; color: white; }
 .fa-heart.liked { color: red !important; }
 .like-display { color: gold; font-weight: bold; font-size: 18px; }
@@ -470,7 +470,7 @@ const imagesLinks = [
 function renderGallery() {
     const gallery = document.getElementById('gallery');
     imagesLinks.forEach((src, i) => {
-        gallery.innerHTML += `<div class="img-container"><img src="${src}"><div class="img-container"><img src="${src}"><div class="protection-layer" onclick="openImage(${i})"></div></div>`;
+        gallery.innerHTML += `<div class="img-container"><img src="${src}"><div class="protection-layer" onclick="openImage(${i})"></div></div>`;
     });
 }
 
@@ -514,7 +514,7 @@ function closeImage() {
 }
 
 function syncFirebase(i) {
-    // حساب عدد المعجبين لعرضه كـ Number في الـ Popup
+    // حساب العدد فقط وعرض الرقم بجانب القلب
     database.ref('likes/photo_' + i).on('value', s => {
         const data = s.val() || {};
         const count = Object.keys(data).length;
@@ -538,11 +538,10 @@ function toggleLike() {
     const wasLiked = likedStatus[currentIndex];
 
     if (wasLiked) {
-        // حذف الإعجاب من Firebase
         likeRef.remove();
         likedStatus[currentIndex] = false;
     } else {
-        // حفظ اسم المستخدم الحقيقي مع الوقت في Realtime Database
+        // حفظ الاسم في Database الخاصة بك في الفايربيس
         likeRef.set({ name: currentUser.displayName, time: new Date().toISOString() });
         likedStatus[currentIndex] = true;
 
