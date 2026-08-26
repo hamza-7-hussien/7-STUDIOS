@@ -268,10 +268,10 @@ header {
 .big-heart.show { animation: heartPop 0.8s forwards; }
 @keyframes heartPop { 0% {opacity:0; transform: translate(-50%, -50%) scale(0.5);} 50% {opacity:1; transform: translate(-50%, -50%) scale(1.4);} 100% {opacity:0; transform: translate(-50%, -50%) scale(1);} }
 
-.actions { display: flex; gap: 30px; align-items: center; margin-top: 15px; padding: 10px 30px; background: rgba(255, 255, 255, 0.08); border-radius: 50px; border: 1px solid rgba(255,215,0,0.4); z-index: 120; }
-.actions i { font-size: 28px; cursor: pointer; color: white; }
+.actions { display: flex; gap: 12px; align-items: center; margin-top: 15px; padding: 10px 25px; background: rgba(255, 255, 255, 0.08); border-radius: 50px; border: 1px solid rgba(255,215,0,0.4); z-index: 120; }
+.actions i { font-size: 26px; cursor: pointer; color: white; }
 .fa-heart.liked { color: red !important; }
-.like-display { color: gold; font-weight: bold; font-size: 18px; margin-left: -20px; }
+.like-display { color: gold; font-weight: bold; font-size: 18px; }
 .close-btn { position:absolute; top:20px; right:25px; font-size:45px; color: gold; cursor:pointer; z-index: 1600; }
 
 .comments-container { width: 100%; margin-top: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px; border: 1px solid rgba(255, 215, 0, 0.2); z-index: 110; }
@@ -470,7 +470,7 @@ const imagesLinks = [
 function renderGallery() {
     const gallery = document.getElementById('gallery');
     imagesLinks.forEach((src, i) => {
-        gallery.innerHTML += `<div class="img-container"><img src="${src}"><div class="protection-layer" onclick="openImage(${i})"></div></div>`;
+        gallery.innerHTML += `<div class="img-container"><img src="${src}"><div class="img-container"><img src="${src}"><div class="protection-layer" onclick="openImage(${i})"></div></div>`;
     });
 }
 
@@ -514,7 +514,7 @@ function closeImage() {
 }
 
 function syncFirebase(i) {
-    // حساب عدد المعجبين الحقيقي من قواعد البيانات
+    // حساب عدد المعجبين لعرضه كـ Number في الـ Popup
     database.ref('likes/photo_' + i).on('value', s => {
         const data = s.val() || {};
         const count = Object.keys(data).length;
@@ -531,18 +531,18 @@ function syncFirebase(i) {
 function toggleLike() {
     if (!currentUser.displayName) return alert("Please enter your name first!");
     
-    // إنشاء مفتاح فريد باسم المستخدم داخل Firebase
+    // مشفر لاسم المستخدم كـ Key آمن في Firebase
     const safeUserKey = btoa(encodeURIComponent(currentUser.displayName)).replace(/=/g, "");
     const likeRef = database.ref('likes/photo_' + currentIndex + '/' + safeUserKey);
 
     const wasLiked = likedStatus[currentIndex];
 
     if (wasLiked) {
-        // حذفه من Firebase Database
+        // حذف الإعجاب من Firebase
         likeRef.remove();
         likedStatus[currentIndex] = false;
     } else {
-        // تسجيل اسم المستخدم بالتفصيل في Realtime Database
+        // حفظ اسم المستخدم الحقيقي مع الوقت في Realtime Database
         likeRef.set({ name: currentUser.displayName, time: new Date().toISOString() });
         likedStatus[currentIndex] = true;
 
