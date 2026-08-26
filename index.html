@@ -202,7 +202,7 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
 <footer class="contact">
   <h2 id="contact-title" style="color: gold; font-size: 28px; margin-bottom: 25px;">Contact Us</h2>
   <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
-    <a href="https://instagram.com/im_7amza_7" id="ig-link" target="_blank" class="social-btn" style="color:#E1306C; border:1px solid #E1306C; padding:10px 20px; border-radius:20px; text-decoration:none;"><i class="fab fa-instagram"></i> Instagram</a>
+    <a href="https://instagram.com/7amza_7_" id="ig-link" target="_blank" class="social-btn" style="color:#E1306C; border:1px solid #E1306C; padding:10px 20px; border-radius:20px; text-decoration:none;"><i class="fab fa-instagram"></i> Instagram</a>
     <a href="https://wa.me/201221109955" id="wa-link" target="_blank" class="social-btn" style="color:#25D366; border:1px solid #25D366; padding:10px 20px; border-radius:20px; text-decoration:none;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
   </div>
 </footer>
@@ -212,9 +212,14 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyA7AujCYTlmLyw9vaEEfWXxDqsd_LF_zWU",
-  databaseURL: "https://studios-dffdd-default-rtdb.firebaseio.com",
-  projectId: "studios-dffdd",
+  apiKey: "AIzaSyD5Jpus1aRmd0xOan4gl7FETYLJMjudwHo",
+  authDomain: "studios-9b8c4.firebaseapp.com",
+  databaseURL: "https://studios-9b8c4-default-rtdb.firebaseio.com",
+  projectId: "studios-9b8c4",
+  storageBucket: "studios-9b8c4.firebasestorage.app",
+  messagingSenderId: "710268925216",
+  appId: "1:710268925216:web:77be520e4a1716621f5345",
+  measurementId: "G-GKVRQTE841"
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
@@ -225,7 +230,6 @@ let startX = 0;
 let isDragging = false;
 let likedStatus = JSON.parse(localStorage.getItem('7studios_likes')) || {};
 
-// ترقية قسم الترجمة ليشمل كلمة Online والروابط
 const translations = {
   en: { section: "DESIGNS", contact: "Contact Us", online: "Online", post: "Post", nTitle: "Welcome", nSub: "Enter full name", nBtn: "Enter", nPlace: "First & Last Name", cPlace: "Add comment...", ig: "Instagram", wa: "WhatsApp" },
   ar: { section: "التصاميم", contact: "تواصل معنا", online: "متصل", post: "نشر", nTitle: "مرحباً بك", nSub: "ادخل اسمك الثنائي", nBtn: "دخول", nPlace: "الاسم الأول والأخير", cPlace: "أضف تعليقاً...", ig: "انستجرام", wa: "واتساب" },
@@ -241,14 +245,14 @@ window.addEventListener('load', () => {
         else trackPresence();
     }, 3000);
     renderGallery();
-    changeLang('en'); // اللغة الافتراضية
+    changeLang('en');
 });
 
 function changeLang(l, el) {
     const t = translations[l];
     document.getElementById('section-title').textContent = t.section;
     document.getElementById('contact-title').textContent = t.contact;
-    document.getElementById('online-label').textContent = t.online; // ترجمة كلمة Online
+    document.getElementById('online-label').textContent = t.online;
     document.getElementById('post-btn').textContent = t.post;
     document.getElementById('name-title').textContent = t.nTitle;
     document.getElementById('name-subtitle').textContent = t.nSub;
@@ -256,7 +260,6 @@ function changeLang(l, el) {
     document.getElementById('user-full-name').placeholder = t.nPlace;
     document.getElementById('commentInput').placeholder = t.cPlace;
     
-    // ترجمة أزرار التواصل
     document.getElementById('ig-link').innerHTML = `<i class="fab fa-instagram"></i> ${t.ig}`;
     document.getElementById('wa-link').innerHTML = `<i class="fab fa-whatsapp"></i> ${t.wa}`;
 
