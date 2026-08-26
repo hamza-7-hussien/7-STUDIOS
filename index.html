@@ -1,4 +1,4 @@
-،<!DOCTYPE html>.
+،<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -438,6 +438,42 @@ function draw() {
     requestAnimationFrame(draw);
 }
 draw();
+// التأكد من اسم الزائر أول ما يفتح الموقع
+window.addEventListener('DOMContentLoaded', () => {
+    const savedName = localStorage.getItem('7studios_user_name');
+    if (!savedName) {
+        document.getElementById('nameModal').style.display = 'flex';
+    }
+});
+
+function saveVisitorName() {
+    const nameInput = document.getElementById('usernameInput').value.trim();
+    if (nameInput !== "") {
+        localStorage.setItem('7studios_user_name', nameInput);
+        document.getElementById('nameModal').style.display = 'none';
+        
+        // تسجيل الزائر في Firebase
+        if (typeof database !== 'undefined') {
+            database.ref('online_users/' + nameInput.replace(/[.#$/\[\]]/g, "_")).set({
+                name: nameInput,
+                last_seen: Date.now()
+            });
+        }
+    } else {
+        alert("برجاء كتابة اسمك أولاً!");
+    }
+}
+  
 </script>
+<!-- Modal Name Popup -->
+<div id="nameModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:#111; border:1px solid #FFD700; padding:30px; border-radius:15px; text-align:center; max-width:320px; width:90%; box-shadow:0 0 20px rgba(255,215,0,0.2);">
+    <h2 style="color:#FFD700; margin-bottom:10px; font-family:sans-serif;">مرحباً بك في 7 STUDIOS</h2>
+    <p style="color:#ccc; font-size:14px; margin-bottom:20px;">من فضلك أدخل اسمك لتصفح المعرض:</p>
+    <input type="text" id="usernameInput" placeholder="اكتب اسمك هنا..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #333; background:#222; color:#fff; font-size:15px; margin-bottom:15px; text-align:center; outline:none;">
+    <button onclick="saveVisitorName()" style="width:100%; padding:12px; background:#FFD700; color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:16px;">دخول</button>
+  </div>
+</div>
+  
 </body>
 </html>
