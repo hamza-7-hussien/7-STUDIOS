@@ -514,7 +514,7 @@ function closeImage() {
 }
 
 function syncFirebase(i) {
-    // حساب العدد فقط وعرض الرقم بجانب القلب
+    // جلب عدد اللايكات فقط لعرض الرقم بجانب أيكونة القلب
     database.ref('likes/photo_' + i).on('value', s => {
         const data = s.val() || {};
         const count = Object.keys(data).length;
@@ -524,14 +524,17 @@ function syncFirebase(i) {
     database.ref('comments/photo_' + i).on('value', s => {
         const list = document.getElementById('commentsList');
         list.innerHTML = "";
-        if(s.val()) Object.values(s.val()).forEach(c => list.innerHTML += `<div class="comment-item"><span class="comment-user-name">${c.user}:</span> ${c.text}</div>`);
+        if(s.val()) {
+            Object.values(s.val()).forEach(c => {
+                list.innerHTML += `<div class="comment-item"><span class="comment-user-name">${c.user}:</span> ${c.text}</div>`;
+            });
+        }
     });
 }
 
 function toggleLike() {
     if (!currentUser.displayName) return alert("Please enter your name first!");
     
-    // مشفر لاسم المستخدم كـ Key آمن في Firebase
     const safeUserKey = btoa(encodeURIComponent(currentUser.displayName)).replace(/=/g, "");
     const likeRef = database.ref('likes/photo_' + currentIndex + '/' + safeUserKey);
 
@@ -541,7 +544,6 @@ function toggleLike() {
         likeRef.remove();
         likedStatus[currentIndex] = false;
     } else {
-        // حفظ الاسم في Database الخاصة بك في الفايربيس
         likeRef.set({ name: currentUser.displayName, time: new Date().toISOString() });
         likedStatus[currentIndex] = true;
 
