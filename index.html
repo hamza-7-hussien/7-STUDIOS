@@ -274,22 +274,6 @@ header {
 .like-display { color: gold; font-weight: bold; font-size: 18px; margin-left: -20px; }
 .close-btn { position:absolute; top:20px; right:25px; font-size:45px; color: gold; cursor:pointer; z-index: 1600; }
 
-/* قائمة المعجبين */
-.liked-by-container {
-  font-size: 12px;
-  color: var(--accent-color);
-  margin-top: 8px;
-  max-width: 90%;
-  text-align: center;
-  line-height: 1.4;
-  z-index: 120;
-}
-
-.liked-by-list {
-  font-weight: bold;
-  color: #fff;
-}
-
 .comments-container { width: 100%; margin-top: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px; border: 1px solid rgba(255, 215, 0, 0.2); z-index: 110; }
 .comments-list { height: 52px; overflow-y: auto; margin-bottom: 10px; text-align: left; }
 .comment-item { font-size: 13px; color: #eee; padding: 4px 8px; border-bottom: 1px solid rgba(255, 215, 0, 0.1); }
@@ -386,12 +370,6 @@ header {
     <i class="fas fa-heart" id="likeBtn" onclick="toggleLike()"></i>
     <span class="like-display" id="likeCountDisplay">0</span>
   </div>
-
-  <!-- عرض أسماء المعجبين -->
-  <div class="liked-by-container" id="likedByContainer">
-    <span id="liked-by-label">Liked by: </span>
-    <span class="liked-by-list" id="likedByList">--</span>
-  </div>
 </div>
 
 <footer class="contact">
@@ -427,11 +405,11 @@ let currentLang = 'en';
 let likedStatus = JSON.parse(localStorage.getItem('7studios_likes')) || {};
 
 const translations = {
-  en: { section: "DESIGNS", contact: "Contact Us", online: "Online", post: "Post", nTitle: "Welcome", nSub: "Enter full name", nBtn: "Enter", nPlace: "First & Last Name", cPlace: "Add comment...", ig: "Instagram", wa: "WhatsApp", swipe: "Swipe to navigate", likedBy: "Liked by: " },
-  ar: { section: "التصاميم", contact: "تواصل معنا", online: "متصل", post: "نشر", nTitle: "مرحباً بك", nSub: "ادخل اسمك الثنائي", nBtn: "دخول", nPlace: "الاسم الأول والأخير", cPlace: "أضف تعليقاً...", ig: "انستجرام", wa: "واتساب", swipe: "اسحب للتنقل", likedBy: "أعجب بواسطة: " },
-  it: { section: "DISEGNI", contact: "Contattaci", online: "In linea", post: "Invia", nTitle: "Benvenuto", nSub: "Inserisci il nome", nBtn: "Entra", nPlace: "Nome e Cognome", cPlace: "Aggiungi commento...", ig: "Instagram", wa: "WhatsApp", swipe: "Scorri per navigare", likedBy: "Piaciuto da: " },
-  de: { section: "DESIGNS", contact: "Kontakt", online: "Online", post: "Post", nTitle: "Willkommen", nSub: "Vollständiger Name", nBtn: "Start", nPlace: "Vor- & Nachname", cPlace: "Kommentar...", ig: "Instagram", wa: "WhatsApp", swipe: "Wischen zum Navigieren", likedBy: "Gefällt: " },
-  cn: { section: "设计", contact: "联系我们", online: "在线", post: "发布", nTitle: "欢迎", nSub: "输入全名", nBtn: "进入", nPlace: "姓和名", cPlace: "添加评论...", ig: "Instagram", wa: "微信/WhatsApp", swipe: "左右滑动切换", likedBy: "赞过的人: " }
+  en: { section: "DESIGNS", contact: "Contact Us", online: "Online", post: "Post", nTitle: "Welcome", nSub: "Enter full name", nBtn: "Enter", nPlace: "First & Last Name", cPlace: "Add comment...", ig: "Instagram", wa: "WhatsApp", swipe: "Swipe to navigate" },
+  ar: { section: "التصاميم", contact: "تواصل معنا", online: "متصل", post: "نشر", nTitle: "مرحباً بك", nSub: "ادخل اسمك الثنائي", nBtn: "دخول", nPlace: "الاسم الأول والأخير", cPlace: "أضف تعليقاً...", ig: "انستجرام", wa: "واتساب", swipe: "اسحب للتنقل" },
+  it: { section: "DISEGNI", contact: "Contattaci", online: "In linea", post: "Invia", nTitle: "Benvenuto", nSub: "Inserisci il nome", nBtn: "Entra", nPlace: "Nome e Cognome", cPlace: "Aggiungi commento...", ig: "Instagram", wa: "WhatsApp", swipe: "Scorri per navigare" },
+  de: { section: "DESIGNS", contact: "Kontakt", online: "Online", post: "Post", nTitle: "Willkommen", nSub: "Vollständiger Name", nBtn: "Start", nPlace: "Vor- & Nachname", cPlace: "Kommentar...", ig: "Instagram", wa: "WhatsApp", swipe: "Wischen zum Navigieren" },
+  cn: { section: "设计", contact: "联系我们", online: "在线", post: "发布", nTitle: "欢迎", nSub: "输入全名", nBtn: "进入", nPlace: "姓和名", cPlace: "添加评论...", ig: "Instagram", wa: "微信/WhatsApp", swipe: "左右滑动切换" }
 };
 
 window.addEventListener('load', () => {
@@ -457,7 +435,6 @@ function changeLang(l, el) {
     document.getElementById('user-full-name').placeholder = t.nPlace;
     document.getElementById('commentInput').placeholder = t.cPlace;
     document.getElementById('swipe-text').textContent = t.swipe;
-    document.getElementById('liked-by-label').textContent = t.likedBy;
     
     document.getElementById('ig-link').innerHTML = `<i class="fab fa-instagram"></i> ${t.ig}`;
     document.getElementById('wa-link').innerHTML = `<i class="fab fa-whatsapp"></i> ${t.wa}`;
@@ -537,19 +514,11 @@ function closeImage() {
 }
 
 function syncFirebase(i) {
+    // حساب عدد المعجبين الحقيقي من قواعد البيانات
     database.ref('likes/photo_' + i).on('value', s => {
         const data = s.val() || {};
-        const userKeys = Object.keys(data);
-        
-        document.getElementById('likeCountDisplay').textContent = userKeys.length;
-
-        const likedByList = document.getElementById('likedByList');
-        if (userKeys.length > 0) {
-            const names = Object.values(data).map(user => user.name);
-            likedByList.textContent = names.join(', ');
-        } else {
-            likedByList.textContent = "--";
-        }
+        const count = Object.keys(data).length;
+        document.getElementById('likeCountDisplay').textContent = count;
     });
 
     database.ref('comments/photo_' + i).on('value', s => {
@@ -562,16 +531,19 @@ function syncFirebase(i) {
 function toggleLike() {
     if (!currentUser.displayName) return alert("Please enter your name first!");
     
+    // إنشاء مفتاح فريد باسم المستخدم داخل Firebase
     const safeUserKey = btoa(encodeURIComponent(currentUser.displayName)).replace(/=/g, "");
     const likeRef = database.ref('likes/photo_' + currentIndex + '/' + safeUserKey);
 
     const wasLiked = likedStatus[currentIndex];
 
     if (wasLiked) {
+        // حذفه من Firebase Database
         likeRef.remove();
         likedStatus[currentIndex] = false;
     } else {
-        likeRef.set({ name: currentUser.displayName });
+        // تسجيل اسم المستخدم بالتفصيل في Realtime Database
+        likeRef.set({ name: currentUser.displayName, time: new Date().toISOString() });
         likedStatus[currentIndex] = true;
 
         const heart = document.getElementById('bigHeart');
