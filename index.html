@@ -141,6 +141,56 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
 
 .contact { margin-top:50px; padding:60px 20px; background: linear-gradient(to top, #000, #0a0a0a); border-top: 2px solid rgba(255, 215, 0, 0.2); }
 .social-btn { text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 700; display: flex; align-items: center; gap: 10px; border: 1px solid gold; font-size: 16px; }
+/* الألوان الافتراضية (Dark Mode) */
+:root {
+    --bg-color: #0a0a0a;
+    --card-bg: #141414;
+    --text-color: #ffffff;
+    --border-color: #222222;
+    --accent-color: #FFD700;
+}
+
+/* ألوان الوضع المضيء (Light Mode) */
+body.light-mode {
+    --bg-color: #f4f4f7;
+    --card-bg: #ffffff;
+    --text-color: #111111;
+    --border-color: #e0e0e0;
+    --accent-color: #d4af37;
+}
+
+/* تطبيق الألوان */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.card {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* زر التبديل */
+.theme-toggle-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--accent-color);
+    color: #000;
+}
+  
 </style>
 </head>
 <body oncontextmenu="return false;">
@@ -184,10 +234,11 @@ body { font-family: 'Poppins', 'Cairo', sans-serif; background: #0a0a0a; color: 
 
 <canvas id="bg-canvas"></canvas>
 
-<header class="header">
-  <img src="https://i.postimg.cc/MTs324rX/IMG-20260317-190541.png" class="logo-img">
-  <h1 class="logo-text">7 STUDIOS</h1>
+<header style="position: relative;">
+    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️ Light Mode</button>
+    <h1>7 STUDIOS</h1>
 </header>
+  
 
 <section>
   <h2 id="section-title" style="color: gold; font-size: 28px; margin-top: 40px;">DESIGNS</h2>
@@ -463,6 +514,27 @@ function saveVisitorName() {
         alert("برجاء كتابة اسمك أولاً!");
     }
 }
+  
+// فحص النمط المحفوظ عند فتح الموقع
+window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('7studios_theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        const btn = document.getElementById('themeBtn');
+        if (btn) btn.innerText = '🌙 Dark Mode';
+    }
+});
+
+// دالة التبديل بين الـ Dark والـ Light
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    
+    // حفظ التفضيل وتحديث النص على الزرار
+    localStorage.setItem('7studios_theme', isLight ? 'light' : 'dark');
+    const btn = document.getElementById('themeBtn');
+    if (btn) btn.innerText = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+  }
   
 </script>
 <!-- Modal Name Popup -->
