@@ -156,7 +156,6 @@ header {
   gap: 15px;
 }
 
-/* التعديل هنا: إظهار اللوجو بالكامل بدون اقتصاص */
 .logo-img { 
   width: 65px; 
   height: 65px; 
@@ -164,7 +163,7 @@ header {
   border-radius: 12px; 
   background-color: #000; 
   padding: 2px; 
-  object-fit: contain; /* نُسِّقت لإظهار اللوجو بالكامل */
+  object-fit: contain; 
 }
 
 .logo-text { font-size: 26px; font-weight: 700; color: var(--accent-color); }
@@ -179,7 +178,6 @@ header {
   padding: 30px 15px 60px 15px; 
 }
 
-/* حركة الطيران الناعمة للصور */
 .img-container { 
   position: relative; 
   width: 100%; 
@@ -189,8 +187,6 @@ header {
   border: 1px solid var(--border-color); 
   background: var(--card-bg);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  
-  /* تفعيل الحركة فوق وتحت */
   animation: floatAnim 4s ease-in-out infinite alternate;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
@@ -215,12 +211,8 @@ header {
 .protection-layer { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 5; background: transparent; cursor: pointer; }
 
 @keyframes floatAnim {
-  0% {
-    transform: translateY(0px);
-  }
-  100% {
-    transform: translateY(-12px);
-  }
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-12px); }
 }
 
 /* Modal Popup */
@@ -229,6 +221,39 @@ header {
   background: rgba(0,0,0,0.97); backdrop-filter: blur(25px);
   justify-content:center; align-items:center; flex-direction: column; z-index:2500; opacity: 0; transition: opacity 0.5s;
 }
+
+/* مؤشر السحب */
+.swipe-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--accent-color);
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  background: rgba(255, 215, 0, 0.08);
+  padding: 6px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.swipe-hint i { font-size: 14px; }
+.swipe-hint .fa-chevron-left { animation: swipeLeftAnim 1.4s infinite ease-in-out; }
+.swipe-hint .fa-chevron-right { animation: swipeRightAnim 1.4s infinite ease-in-out; }
+
+@keyframes swipeLeftAnim {
+  0%, 100% { transform: translateX(0); opacity: 0.5; }
+  50% { transform: translateX(-6px); opacity: 1; }
+}
+
+@keyframes swipeRightAnim {
+  0%, 100% { transform: translateX(0); opacity: 0.5; }
+  50% { transform: translateX(6px); opacity: 1; }
+}
+
 .img-area { position:relative; width: 90%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
 .popup img { width: 100%; border-radius: 20px; border: 3px solid gold; }
 
@@ -248,6 +273,22 @@ header {
 .fa-heart.liked { color: red !important; }
 .like-display { color: gold; font-weight: bold; font-size: 18px; margin-left: -20px; }
 .close-btn { position:absolute; top:20px; right:25px; font-size:45px; color: gold; cursor:pointer; z-index: 1600; }
+
+/* قائمة المعجبين */
+.liked-by-container {
+  font-size: 12px;
+  color: var(--accent-color);
+  margin-top: 8px;
+  max-width: 90%;
+  text-align: center;
+  line-height: 1.4;
+  z-index: 120;
+}
+
+.liked-by-list {
+  font-weight: bold;
+  color: #fff;
+}
 
 .comments-container { width: 100%; margin-top: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px; border: 1px solid rgba(255, 215, 0, 0.2); z-index: 110; }
 .comments-list { height: 52px; overflow-y: auto; margin-bottom: 10px; text-align: left; }
@@ -320,6 +361,14 @@ header {
 
 <div class="popup" id="popup">
   <span class="close-btn" onclick="closeImage()">×</span>
+
+  <!-- مؤشر السحب -->
+  <div class="swipe-hint" id="swipeHint">
+    <i class="fas fa-chevron-left"></i>
+    <span id="swipe-text">Swipe to navigate</span>
+    <i class="fas fa-chevron-right"></i>
+  </div>
+
   <div class="img-area">
     <div id="swipe-protection"></div>
     <img id="popup-img" draggable="false">
@@ -332,9 +381,16 @@ header {
       </div>
     </div>
   </div>
+  
   <div class="actions">
     <i class="fas fa-heart" id="likeBtn" onclick="toggleLike()"></i>
     <span class="like-display" id="likeCountDisplay">0</span>
+  </div>
+
+  <!-- عرض أسماء المعجبين -->
+  <div class="liked-by-container" id="likedByContainer">
+    <span id="liked-by-label">Liked by: </span>
+    <span class="liked-by-list" id="likedByList">--</span>
   </div>
 </div>
 
@@ -367,14 +423,15 @@ let currentUser = { displayName: localStorage.getItem('7studios_user_name') || "
 let currentIndex = 0;
 let startX = 0;
 let isDragging = false;
+let currentLang = 'en';
 let likedStatus = JSON.parse(localStorage.getItem('7studios_likes')) || {};
 
 const translations = {
-  en: { section: "DESIGNS", contact: "Contact Us", online: "Online", post: "Post", nTitle: "Welcome", nSub: "Enter full name", nBtn: "Enter", nPlace: "First & Last Name", cPlace: "Add comment...", ig: "Instagram", wa: "WhatsApp" },
-  ar: { section: "التصاميم", contact: "تواصل معنا", online: "متصل", post: "نشر", nTitle: "مرحباً بك", nSub: "ادخل اسمك الثنائي", nBtn: "دخول", nPlace: "الاسم الأول والأخير", cPlace: "أضف تعليقاً...", ig: "انستجرام", wa: "واتساب" },
-  it: { section: "DISEGNI", contact: "Contattaci", online: "In linea", post: "Invia", nTitle: "Benvenuto", nSub: "Inserisci il nome", nBtn: "Entra", nPlace: "Nome e Cognome", cPlace: "Aggiungi commento...", ig: "Instagram", wa: "WhatsApp" },
-  de: { section: "DESIGNS", contact: "Kontakt", online: "Online", post: "Post", nTitle: "Willkommen", nSub: "Vollständiger Name", nBtn: "Start", nPlace: "Vor- & Nachname", cPlace: "Kommentar...", ig: "Instagram", wa: "WhatsApp" },
-  cn: { section: "设计", contact: "联系我们", online: "在线", post: "发布", nTitle: "欢迎", nSub: "输入全名", nBtn: "进入", nPlace: "姓和名", cPlace: "添加评论...", ig: "Instagram", wa: "微信/WhatsApp" }
+  en: { section: "DESIGNS", contact: "Contact Us", online: "Online", post: "Post", nTitle: "Welcome", nSub: "Enter full name", nBtn: "Enter", nPlace: "First & Last Name", cPlace: "Add comment...", ig: "Instagram", wa: "WhatsApp", swipe: "Swipe to navigate", likedBy: "Liked by: " },
+  ar: { section: "التصاميم", contact: "تواصل معنا", online: "متصل", post: "نشر", nTitle: "مرحباً بك", nSub: "ادخل اسمك الثنائي", nBtn: "دخول", nPlace: "الاسم الأول والأخير", cPlace: "أضف تعليقاً...", ig: "انستجرام", wa: "واتساب", swipe: "اسحب للتنقل", likedBy: "أعجب بواسطة: " },
+  it: { section: "DISEGNI", contact: "Contattaci", online: "In linea", post: "Invia", nTitle: "Benvenuto", nSub: "Inserisci il nome", nBtn: "Entra", nPlace: "Nome e Cognome", cPlace: "Aggiungi commento...", ig: "Instagram", wa: "WhatsApp", swipe: "Scorri per navigare", likedBy: "Piaciuto da: " },
+  de: { section: "DESIGNS", contact: "Kontakt", online: "Online", post: "Post", nTitle: "Willkommen", nSub: "Vollständiger Name", nBtn: "Start", nPlace: "Vor- & Nachname", cPlace: "Kommentar...", ig: "Instagram", wa: "WhatsApp", swipe: "Wischen zum Navigieren", likedBy: "Gefällt: " },
+  cn: { section: "设计", contact: "联系我们", online: "在线", post: "发布", nTitle: "欢迎", nSub: "输入全名", nBtn: "进入", nPlace: "姓和名", cPlace: "添加评论...", ig: "Instagram", wa: "微信/WhatsApp", swipe: "左右滑动切换", likedBy: "赞过的人: " }
 };
 
 window.addEventListener('load', () => {
@@ -388,6 +445,7 @@ window.addEventListener('load', () => {
 });
 
 function changeLang(l, el) {
+    currentLang = l;
     const t = translations[l];
     document.getElementById('section-title').textContent = t.section;
     document.getElementById('contact-title').textContent = t.contact;
@@ -398,6 +456,8 @@ function changeLang(l, el) {
     document.getElementById('name-btn').textContent = t.nBtn;
     document.getElementById('user-full-name').placeholder = t.nPlace;
     document.getElementById('commentInput').placeholder = t.cPlace;
+    document.getElementById('swipe-text').textContent = t.swipe;
+    document.getElementById('liked-by-label').textContent = t.likedBy;
     
     document.getElementById('ig-link').innerHTML = `<i class="fab fa-instagram"></i> ${t.ig}`;
     document.getElementById('wa-link').innerHTML = `<i class="fab fa-whatsapp"></i> ${t.wa}`;
@@ -477,7 +537,21 @@ function closeImage() {
 }
 
 function syncFirebase(i) {
-    database.ref('likes/photo_' + i).on('value', s => document.getElementById('likeCountDisplay').textContent = s.val() || 0);
+    database.ref('likes/photo_' + i).on('value', s => {
+        const data = s.val() || {};
+        const userKeys = Object.keys(data);
+        
+        document.getElementById('likeCountDisplay').textContent = userKeys.length;
+
+        const likedByList = document.getElementById('likedByList');
+        if (userKeys.length > 0) {
+            const names = Object.values(data).map(user => user.name);
+            likedByList.textContent = names.join(', ');
+        } else {
+            likedByList.textContent = "--";
+        }
+    });
+
     database.ref('comments/photo_' + i).on('value', s => {
         const list = document.getElementById('commentsList');
         list.innerHTML = "";
@@ -486,16 +560,27 @@ function syncFirebase(i) {
 }
 
 function toggleLike() {
+    if (!currentUser.displayName) return alert("Please enter your name first!");
+    
+    const safeUserKey = btoa(encodeURIComponent(currentUser.displayName)).replace(/=/g, "");
+    const likeRef = database.ref('likes/photo_' + currentIndex + '/' + safeUserKey);
+
     const wasLiked = likedStatus[currentIndex];
-    database.ref('likes/photo_' + currentIndex).transaction(v => (v || 0) + (wasLiked ? -1 : 1));
-    likedStatus[currentIndex] = !wasLiked;
-    localStorage.setItem('7studios_likes', JSON.stringify(likedStatus));
-    updatePopup();
-    if (!wasLiked) {
+
+    if (wasLiked) {
+        likeRef.remove();
+        likedStatus[currentIndex] = false;
+    } else {
+        likeRef.set({ name: currentUser.displayName });
+        likedStatus[currentIndex] = true;
+
         const heart = document.getElementById('bigHeart');
         heart.classList.add('show');
         setTimeout(() => heart.classList.remove('show'), 800);
     }
+
+    localStorage.setItem('7studios_likes', JSON.stringify(likedStatus));
+    updatePopup();
 }
 
 function addComment() {
